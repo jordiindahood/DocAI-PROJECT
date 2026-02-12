@@ -1,0 +1,39 @@
+# =============================================================================
+# YOLOv11 Dataset & Pipeline Configuration
+# =============================================================================
+
+# ─── Paths (relative to project root) ─────────────────────────
+paths:
+  pdf_dir: "data/docs"
+  image_dir: "data/images"
+  annotation_dir: "data/annotations"
+  yolo_labels_dir: "data/yolo_labels"
+  dataset_dir: "/mnt/disk/Holberton/DocAI-API/data/yolo-augmented-dataset"
+
+# ─── YOLO Dataset ─────────────────────────────────────────────
+path: /mnt/disk/Holberton/DocAI-API/data/yolo-augmented-dataset
+train: images/train
+val: images/val
+nc: 1
+names:
+  0: text
+
+# ─── PDF to Image ─────────────────────────────────────────────
+pdf2img:
+  dpi: 250
+  chunk_pages: 10
+  max_pages_per_pdf: 0           # 0 = no limit
+  thread_count: 1
+
+# ─── Dataset Split ─────────────────────────────────────────────
+split:
+  train_ratio: 0.8
+  random_seed: 42
+
+# ─── Augmentation ──────────────────────────────────────────────
+augmentation:
+  copies: 2                      # augmented copies per original image
+  seed: 42
+  splits:
+    - train
+    - val

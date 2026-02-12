@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DocAI — Document Processing</title>
+  <meta name="description" content="Upload a document image and get a reconstructed PDF or structured layout JSON using AI-powered analysis." />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>" />
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- ── Header ──────────────────────────────────────────────── -->
+    <header>
+      <div class="logo">
+        <div class="logo-icon">D</div>
+        <div>
+          <h1>DocAI</h1>
+          <span>Document Processing</span>
+        </div>
+      </div>
+      <div class="health" title="API health status">
+        <span class="health-dot" id="healthDot"></span>
+        <span id="healthLabel">Checking…</span>
+      </div>
+    </header>
+
+    <!-- ── Upload Card ─────────────────────────────────────────── -->
+    <section class="card">
+      <div class="card-title">Upload Document</div>
+
+      <div class="dropzone" id="dropzone">
+        <div class="dropzone-icon">📤</div>
+        <p>Drag &amp; drop your image here or <strong>browse</strong></p>
+        <p class="file-info" id="fileInfo">PNG, JPG, JPEG, TIFF, BMP, WEBP — max 20 MB</p>
+        <img class="preview-thumb" id="previewImg" style="display:none" alt="Preview" />
+        <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,.tiff,.tif,.bmp,.webp" />
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="btnPdf" disabled>
+          📄 &nbsp;Get PDF
+        </button>
+        <button class="btn btn-secondary" id="btnJson" disabled>
+          { } &nbsp;Get JSON Layout
+        </button>
+      </div>
+    </section>
+
+    <!-- ── Spinner ─────────────────────────────────────────────── -->
+    <div class="spinner-wrapper" id="spinner">
+      <div class="spinner"></div>
+      <span class="spinner-text" id="spinnerText">Processing…</span>
+    </div>
+
+    <!-- ── Results Card ────────────────────────────────────────── -->
+    <section class="card result-section" id="resultSection">
+      <div class="card-title" id="resultTitle">Result</div>
+      <div id="resultBody"></div>
+    </section>
+
+    <!-- ── Footer ──────────────────────────────────────────────── -->
+    <footer>
+      DocAI &middot; Document Processing API &middot; v1.0.0
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
