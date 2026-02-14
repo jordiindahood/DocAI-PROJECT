@@ -16,11 +16,11 @@ DocAI is an advanced document processing pipeline that reconstructs the layout o
 
 -   **Core**: Python 3.10+
 -   **Deep Learning**: PyTorch, Ultralytics YOLOv11
--   **OCR**: Tesseract (pytesseract), PaddleOCR (optional)
+-   **OCR**: Tesseract (pytesseract)
 -   **Computer Vision**: OpenCV, NumPy, Pillow
 -   **Backend**: FastAPI, Uvicorn
 -   **PDF Generation**: ReportLab
--   **Data Versioning**: DVC
+
 
 ## 📂 Project Structure
 
