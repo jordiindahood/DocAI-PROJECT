@@ -29,3 +29,4 @@ tqdm>=4.66
 
 # imagepreprocess
 pdf2image
+pymupdf
