@@ -27,3 +27,5 @@ aiofiles>=23.2
 # Utilities
 tqdm>=4.66
 
+# imagepreprocess
+pdf2image
