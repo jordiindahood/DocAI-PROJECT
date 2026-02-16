@@ -63,7 +63,7 @@ class ExportManager:
         export_paths = {}
         
         if "pdf" in formats:
-            pdf_path = self._export_pdf(data, base_name)
+            pdf_path = self.export_pdf(data, base_name)
             export_paths["pdf"] = pdf_path
         
         return export_paths
