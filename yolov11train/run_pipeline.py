@@ -48,10 +48,10 @@ def main():
     # All scripts read their config from data.yaml — no args needed
     steps = [
         #("yolov11train/preprocessing/1-pdf2img.py", "Convert PDFs to Images"),
-        #("yolov11train/preprocessing/2-extract_txt_and_bounding_boxes.py", "Extract Annotations"),
+        ("yolov11train/preprocessing/2-extract_txt_and_bounding_boxes.py", "Extract Annotations"),
         ("yolov11train/preprocessing/3-annotations_2_yolo_format.py", "Convert to YOLO Format"),
         ("yolov11train/preprocessing/4-split_yolo_dataset.py", "Split Dataset"),
-        #("yolov11train/augmentation/apply_augmentations.py", "Apply Augmentations"),
+        ("yolov11train/augmentation/apply_augmentations.py", "Apply Augmentations"),
         # ("yolov11train/training/train_yolo11.py", "Train YOLOv11 Model"),
     ]
 

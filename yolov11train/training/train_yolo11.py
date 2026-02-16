@@ -1,94 +1,130 @@
 #!/usr/bin/env python3
 """
-YOLOv11 training script optimized for T4 GPU (16GB VRAM) in Google Colab
-Based on YOLOv8 training settings with adjustments for YOLOv11.
+YOLOv11 training script (accuracy-first but T4-safe) for Google Colab.
+
+Why this edit:
+- Your run crashed with CUDA OOM in TaskAlignedAssigner.
+- The biggest memory drivers were imgsz=960 + batch=-1 + multi_scale=True + many boxes per doc.
+- This version keeps accuracy focus but makes memory predictable and stable on a T4 (16GB).
+
+Upgrade path (after it runs):
+1) Try batch=6 or 8 (keep imgsz=640)
+2) Then try imgsz=768 with batch=4
+3) Avoid enabling multi_scale until you confirm stability
 """
 
 from ultralytics import YOLO
 import torch
-from pathlib import Path
-import yaml
 
+# ---------------------------
+# GPU Device check/selection
+# ---------------------------
 
-if torch.cuda.is_available():
-    device = "cuda:0"  # Use GPU if available
-    print("Using GPU:", torch.cuda.get_device_name(0))  # Display the GPU name
-else:
-    device = "cpu"  # Use CPU if no GPU is available
-    print("Warning: CUDA not available. Using CPU (training will be slow).")
+# Require a GPU and require >= 15 GB VRAM (e.g., T4 16GB)
+if not torch.cuda.is_available():
+    raise SystemExit("GPU required. CUDA not available.")
+
+props = torch.cuda.get_device_properties(0)
+vram_gb = props.total_memory / (1024**3)
+
+if vram_gb < 15:
+    raise SystemExit(f"Need >=15GB VRAM. Found {vram_gb:.2f}GB on {props.name}.")
+
+device = "cuda:0"
+print(f"Using GPU: {props.name} ({vram_gb:.2f} GB)")
 
 # ---------------------------
 # Load YOLOv11 model
 # ---------------------------
 
-model = YOLO("yolo11n.pt")
+# Start with "s" for better accuracy; if you still OOM, switch to "yolo11n.pt"
+
+model = YOLO("yolo11s.pt")
+
+print("\n" + "=" * 50)
+print("Starting YOLOv11 Training (Accuracy-First, T4-Safe)")
+print("=" * 50)
 
 # ---------------------------
-# Training parameters
+# Train
 # ---------------------------
-print("\n" + "="*50)
-print("Starting YOLOv11 Training")
-print("="*50)
-
-# Start training with the given parameters
 results = model.train(
+    # Dataset config (paths + class names)
     data="yolov11train/data.yaml",
-    epochs=50,
+
+    # Train longer
+    epochs=200,
     imgsz=640,
-    batch=16,
-    workers=8,
-    device=device
+    batch=4,
+
+    workers=2,
+
+    # Train on GPU/CPU
+    device=device,
+
+    # Mixed precision speeds up training on GPU and usually keeps accuracy
     amp=True,
+
+    cache=True,
+
+    # Disable multi-scale for stability (multi-scale can spike VRAM)
+    multi_scale=False,
+
+    # Experiment tracking output folder
     project="yolov11train/runs",
-    name="docs_detection",
+    name="docs_detection_acc_t4safe",
     exist_ok=True,
     verbose=True,
-    
-    # Augmentation settings
 
-    hsv_h=0.015,                # Hue augmentation
-    hsv_s=0.4,                  # Saturation augmentation
-    hsv_v=0.3,                  # brightness augmentation
-    degrees=3.0,                # Rotation augmentation
-    translate=0.1,              # Horizontal/Vertical translation
-    scale=0.3,                  # Image scaling
-    shear=2.0,                  # Shear
-    perspective=0.0001,         # Perspective transformation
-    flipud=0.0,                 # No vertical flip
-    fliplr=0.0,                 # No horizontal flip
-    
-    # Optimization parameters
+    # ---------------------------
+    # Optimizer / LR
+    # ---------------------------
+    optimizer="AdamW",
+    lr0=0.0015,
+    lrf=0.01,   
+    weight_decay=0.0005,
+    warmup_epochs=3.0,
 
-    optimizer="AdamW",          # AdamW optimizer for better convergence
-    lr0=0.001,                  # Initial learning rate
-    lrf=0.01,                   # Learning rate final factor
-    momentum=0.937,             # Momentum value for the optimizer
-    weight_decay=0.0005,        # Weight decay (regularization to avoid overfitting)
-    warmup_epochs=3.0,          # Number of warmup epochs to start with a lower learning rate
-    
-    # Saving model checkpoints and metrics
+    # ---------------------------
+    # Augmentations
+    # ---------------------------
+    hsv_h=0.01,
+    hsv_s=0.25,
+    hsv_v=0.20,
 
-    save=True,                  # Save the model checkpoints during training
-    save_period=10,             # Save checkpoints every 10 epochs
-    plots=True,                 # Generate plots for training progress (loss, mAP, etc.)
+    degrees=1.0,
+    translate=0.05,
+    scale=0.15,
+    shear=0.1,
+    perspective=0.0,
+
+    flipud=0.0,
+    fliplr=0.0,
+
+    # Keep mosaic low; too high can hurt layout tasks and adds instability
+    mosaic=0.2,
+    mixup=0.0,
+    copy_paste=0.0,
+
+    # ---------------------------
+    # Saving / plots
+    # ---------------------------
+    save=True,
+    save_period=10,
+    plots=True,
 )
 
-# ---------------------------
-# Completion Message
-# ---------------------------
-
-print("\n" + "="*50)
+print("\n" + "=" * 50)
 print("Training complete!")
-print("="*50)
+print("=" * 50)
 
 # ---------------------------
-# Results summary
+# Quick results summary
 # ---------------------------
-# Display the results and metrics after training completes
-
-print(f"\nResults saved to: yolov11train/runs/docs_detection/")
+print("\nResults saved to: yolov11train/runs/docs_detection_acc_t4safe/")
 print("\nMetrics summary:")
 print(f"  - mAP50: {results.results_dict.get('metrics/mAP50(B)', 'N/A')}")
 print(f"  - mAP50-95: {results.results_dict.get('metrics/mAP50-95(B)', 'N/A')}")
 print(f"  - Precision: {results.results_dict.get('metrics/precision(B)', 'N/A')}")
 print(f"  - Recall: {results.results_dict.get('metrics/recall(B)', 'N/A')}")
+    
