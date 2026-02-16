@@ -2,15 +2,6 @@
 """
 YOLOv11 training script (accuracy-first but T4-safe) for Google Colab.
 
-Why this edit:
-- Your run crashed with CUDA OOM in TaskAlignedAssigner.
-- The biggest memory drivers were imgsz=960 + batch=-1 + multi_scale=True + many boxes per doc.
-- This version keeps accuracy focus but makes memory predictable and stable on a T4 (16GB).
-
-Upgrade path (after it runs):
-1) Try batch=6 or 8 (keep imgsz=640)
-2) Then try imgsz=768 with batch=4
-3) Avoid enabling multi_scale until you confirm stability
 """
 
 from ultralytics import YOLO
