@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 YOLOv11 training script (accuracy-first but T4-safe) for Google Colab.
-
 """
 
 from ultralytics import YOLO
