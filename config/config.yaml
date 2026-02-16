@@ -6,7 +6,7 @@
 # Detection (YOLO)
 # =============================================================================
 detection:
-  model_path: "models/yolov11_2/best.pt"
+  model_path: "models/yolov11_2/best-s.pt"
   confidence_threshold: 0.4
   image_size: 1280
   device: "cpu"                  # "cpu" or "cuda"
